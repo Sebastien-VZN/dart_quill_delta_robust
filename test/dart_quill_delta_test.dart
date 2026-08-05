@@ -150,14 +150,15 @@ void main() {
 
   group('$Operation', () {
     test('insert factory', () {
-      final op = Operation.insert('a', const {'b': true});
+      final op = Operation.insert('a', attributes: const {'b': true});
       expect(op.isInsert, isTrue);
       expect(op.length, 1);
       expect(op.attributes, const {'b': true});
     });
 
     test('insert (object) factory', () {
-      final op = Operation.insert(<String, dynamic>{}, const {'b': true});
+      final op =
+          Operation.insert(<String, dynamic>{}, attributes: const {'b': true});
       expect(op.isInsert, isTrue);
       expect(op.length, 1);
       expect(op.attributes, const {'b': true});
@@ -171,7 +172,7 @@ void main() {
     });
 
     test('retain factory', () {
-      final op = Operation.retain(5, const {'b': true});
+      final op = Operation.retain(5, attributes: const {'b': true});
       expect(op.isRetain, isTrue);
       expect(op.length, 5);
       expect(op.attributes, const {'b': true});
@@ -179,8 +180,8 @@ void main() {
 
     test('isPlain', () {
       final op1 = Operation.retain(1);
-      final op2 = Operation.retain(1, {});
-      final op3 = Operation.retain(1, {'b': true});
+      final op2 = Operation.retain(1, attributes: {});
+      final op3 = Operation.retain(1, attributes: {'b': true});
       expect(op1.isPlain, isTrue);
       expect(op2.isPlain, isTrue);
       expect(op3.isPlain, isFalse);
@@ -191,7 +192,7 @@ void main() {
 
     test('isEmpty', () {
       final op1 = Operation.retain(0);
-      final op2 = Operation.retain(0, {});
+      final op2 = Operation.retain(0, attributes: {});
       final op3 = Operation.retain(1);
       expect(op1.isEmpty, isTrue);
       expect(op2.isEmpty, isTrue);
@@ -203,8 +204,10 @@ void main() {
 
     test('equality', () {
       final op1 = Operation.insert('a');
-      final op2 = Operation.insert('b', const {'h': '1', 'b': true});
-      final op3 = Operation.insert('b', const {'h': true, 'b': '1'});
+      final op2 =
+          Operation.insert('b', attributes: const {'h': '1', 'b': true});
+      final op3 =
+          Operation.insert('b', attributes: const {'h': true, 'b': '1'});
       final op4 = Operation.insert('a');
       expect(op1, isNot(op2));
       expect(op2, isNot(op3));
@@ -212,9 +215,12 @@ void main() {
     });
 
     test('hashCode', () {
-      final op1 = Operation.insert('b', const {'h': '1', 'b': true});
-      final op2 = Operation.insert('b', const {'h': '1', 'b': true});
-      final op3 = Operation.insert('b', const {'h': true, 'b': '1'});
+      final op1 =
+          Operation.insert('b', attributes: const {'h': '1', 'b': true});
+      final op2 =
+          Operation.insert('b', attributes: const {'h': '1', 'b': true});
+      final op3 =
+          Operation.insert('b', attributes: const {'h': true, 'b': '1'});
       expect(op2.hashCode, isNot(op3.hashCode));
       expect(op2.hashCode, op1.hashCode);
     });
@@ -222,11 +228,11 @@ void main() {
     test('toString', () {
       final op1 = Operation.insert(
         'Hello world!\nAnd fancy line-breaks.\n',
-        {'b': true},
+        attributes: {'b': true},
       );
-      final op2 = Operation.retain(3, {'b': '1'});
+      final op2 = Operation.retain(3, attributes: {'b': '1'});
       final op3 = Operation.delete(3);
-      final op4 = Operation.insert({'a': 1}, {'b': true});
+      final op4 = Operation.insert({'a': 1}, attributes: {'b': true});
       expect(
         '$op1',
         'insert⟨ Hello world!⏎And fancy line-breaks.⏎ ⟩ + {b: true}',
@@ -237,25 +243,31 @@ void main() {
     });
 
     test('attributes immutable', () {
-      final op = Operation.insert('\n', {'b': true});
+      final op = Operation.insert('\n', attributes: {'b': true});
       final attrs = op.attributes!;
       attrs['b'] = null;
       expect(op.attributes, {'b': true});
     });
 
     test('attributes operator== simple', () {
-      final op1 = Operation.insert('\n', {'b': true});
-      final op2 = Operation.insert('\n', {'b': true});
+      final op1 = Operation.insert('\n', attributes: {'b': true});
+      final op2 = Operation.insert('\n', attributes: {'b': true});
       expect(op1 == op2, isTrue);
     });
 
     test('attributes operator== complex', () {
-      final op1 = Operation.insert('\n', {
-        'b': {'c': 'd'},
-      });
-      final op2 = Operation.insert('\n', {
-        'b': {'c': 'd'},
-      });
+      final op1 = Operation.insert(
+        '\n',
+        attributes: {
+          'b': {'c': 'd'},
+        },
+      );
+      final op2 = Operation.insert(
+        '\n',
+        attributes: {
+          'b': {'c': 'd'},
+        },
+      );
       expect(op1 == op2, isTrue);
     });
   });
@@ -268,7 +280,7 @@ void main() {
 
     test('json', () {
       final delta = Delta()
-        ..insert('abc', {'b': true})
+        ..insert('abc', attributes: {'b': true})
         ..insert('def')
         ..insert({'a': 1});
       final result = json.encode(delta);
@@ -282,7 +294,7 @@ void main() {
 
     test('toString', () {
       final delta = Delta()
-        ..insert('Hello world!', {'b': true})
+        ..insert('Hello world!', attributes: {'b': true})
         ..retain(5);
       expect('$delta', 'insert⟨ Hello world! ⟩ + {b: true}\nretain⟨ 5 ⟩');
     });
@@ -317,11 +329,11 @@ void main() {
       test('retain', () {
         final delta = Delta()
           ..retain(2)
-          ..retain(3, {'b': true});
+          ..retain(3, attributes: {'b': true});
         final base = Delta()..insert('123456');
         final expected = Delta()
           ..retain(2)
-          ..retain(3, {'b': null});
+          ..retain(3, attributes: {'b': null});
         final inverted = delta.invert(base);
         expect(expected, inverted);
         expect(base.compose(delta).compose(inverted), base);
@@ -330,9 +342,9 @@ void main() {
       test('retain on a delta with different attributes', () {
         final base = Delta()
           ..insert('123')
-          ..insert('4', {'b': true});
-        final delta = Delta()..retain(4, {'i': true});
-        final expected = Delta()..retain(4, {'i': null});
+          ..insert('4', attributes: {'b': true});
+        final delta = Delta()..retain(4, attributes: {'i': true});
+        final expected = Delta()..retain(4, attributes: {'i': null});
         final inverted = delta.invert(base);
         expect(expected, inverted);
         expect(base.compose(delta).compose(inverted), base);
@@ -342,22 +354,22 @@ void main() {
         final delta = Delta()
           ..retain(2)
           ..delete(2)
-          ..insert('AB', {'italic': true})
-          ..retain(2, {'italic': null, 'bold': true})
-          ..retain(2, {'color': 'red'})
+          ..insert('AB', attributes: {'italic': true})
+          ..retain(2, attributes: {'italic': null, 'bold': true})
+          ..retain(2, attributes: {'color': 'red'})
           ..delete(1);
         final base = Delta()
-          ..insert('123', {'bold': true})
-          ..insert('456', {'italic': true})
-          ..insert('789', {'color': 'red', 'bold': true});
+          ..insert('123', attributes: {'bold': true})
+          ..insert('456', attributes: {'italic': true})
+          ..insert('789', attributes: {'color': 'red', 'bold': true});
         final expected = Delta()
           ..retain(2)
-          ..insert('3', {'bold': true})
-          ..insert('4', {'italic': true})
+          ..insert('3', attributes: {'bold': true})
+          ..insert('4', attributes: {'italic': true})
           ..delete(2)
-          ..retain(2, {'italic': true, 'bold': null})
+          ..retain(2, attributes: {'italic': true, 'bold': null})
           ..retain(2)
-          ..insert('9', {'color': 'red', 'bold': true});
+          ..insert('9', attributes: {'color': 'red', 'bold': true});
 
         final inverted = delta.invert(base);
         expect(inverted, expected);
@@ -495,10 +507,10 @@ void main() {
 
       test('consequent inserts with different attributes do not merge', () {
         final delta = Delta()
-          ..insert('abc', const {'b': true})
+          ..insert('abc', attributes: const {'b': true})
           ..insert('123');
         expect(delta.toList(), [
-          Operation.insert('abc', const {'b': true}),
+          Operation.insert('abc', attributes: const {'b': true}),
           Operation.insert('123'),
         ]);
       });
@@ -516,30 +528,39 @@ void main() {
       test('consequent inserts (object) with different attributes do not merge',
           () {
         final delta = Delta()
-          ..insert(const <String, dynamic>{}, const {'b': true})
+          ..insert(const <String, dynamic>{}, attributes: const {'b': true})
           ..insert(const <String, dynamic>{});
         expect(delta.toList(), [
-          Operation.insert(const <String, dynamic>{}, const {'b': true}),
+          Operation.insert(
+            const <String, dynamic>{},
+            attributes: const {'b': true},
+          ),
           Operation.insert(const <String, dynamic>{}),
         ]);
       });
 
       test('consequent inserts (object) with same attributes do not merge', () {
         final delta = Delta()
-          ..insert(const <String, dynamic>{}, const {'b': true})
-          ..insert(const <String, dynamic>{}, const {'b': true});
+          ..insert(const <String, dynamic>{}, attributes: const {'b': true})
+          ..insert(const <String, dynamic>{}, attributes: const {'b': true});
         expect(delta.toList(), [
-          Operation.insert(const <String, dynamic>{}, const {'b': true}),
-          Operation.insert(const <String, dynamic>{}, const {'b': true}),
+          Operation.insert(
+            const <String, dynamic>{},
+            attributes: const {'b': true},
+          ),
+          Operation.insert(
+            const <String, dynamic>{},
+            attributes: const {'b': true},
+          ),
         ]);
       });
 
       test('consequent retain with different attributes do not merge', () {
         final delta = Delta()
-          ..retain(5, const {'b': true})
+          ..retain(5, attributes: const {'b': true})
           ..retain(3);
         expect(delta.toList(), [
-          Operation.retain(5, const {'b': true}),
+          Operation.retain(5, attributes: const {'b': true}),
           Operation.retain(3),
         ]);
       });
@@ -548,18 +569,18 @@ void main() {
         final ul = {'block': 'ul'};
         final doc = Delta()
           ..insert('DartConf')
-          ..insert('\n', ul)
+          ..insert('\n', attributes: ul)
           ..insert('Los Angeles')
-          ..insert('\n', ul);
+          ..insert('\n', attributes: ul);
         final change = Delta()
           ..retain(8)
-          ..insert('\n', ul);
+          ..insert('\n', attributes: ul);
         final result = doc.compose(change);
         final expected = Delta()
           ..insert('DartConf')
-          ..insert('\n\n', ul)
+          ..insert('\n\n', attributes: ul)
           ..insert('Los Angeles')
-          ..insert('\n', ul);
+          ..insert('\n', attributes: ul);
         expect(result, expected);
       });
 
@@ -632,17 +653,20 @@ void main() {
 
       test('insert + retain', () {
         final a = Delta()..insert('A');
-        final b = Delta()..retain(1, const {'b': true});
+        final b = Delta()..retain(1, attributes: const {'b': true});
         expect(a.compose(b).toList(), [
-          Operation.insert('A', const {'b': true}),
+          Operation.insert('A', attributes: const {'b': true}),
         ]);
       });
 
       test('insert (object) + retain', () {
         final a = Delta()..insert(const <String, dynamic>{});
-        final b = Delta()..retain(1, const {'b': true});
+        final b = Delta()..retain(1, attributes: const {'b': true});
         expect(a.compose(b).toList(), [
-          Operation.insert(const <String, dynamic>{}, const {'b': true}),
+          Operation.insert(
+            const <String, dynamic>{},
+            attributes: const {'b': true},
+          ),
         ]);
       });
 
@@ -675,44 +699,46 @@ void main() {
 
       test('delete + retain', () {
         final a = Delta()..delete(1);
-        final b = Delta()..retain(1, const {'b': true});
+        final b = Delta()..retain(1, attributes: const {'b': true});
         final expected = Delta()
           ..delete(1)
-          ..retain(1, const {'b': true});
+          ..retain(1, attributes: const {'b': true});
         expect(a.compose(b), expected);
       });
 
       // ==== retain combinations ====
 
       test('retain + insert', () {
-        final a = Delta()..retain(1, const {'b': true});
+        final a = Delta()..retain(1, attributes: const {'b': true});
         final b = Delta()..insert('B');
         final expected = Delta()
           ..insert('B')
-          ..retain(1, const {'b': true});
+          ..retain(1, attributes: const {'b': true});
         expect(a.compose(b), expected);
       });
 
       test('retain + insert (object)', () {
-        final a = Delta()..retain(1, const {'b': true});
+        final a = Delta()..retain(1, attributes: const {'b': true});
         final b = Delta()..insert(const <String, dynamic>{});
         final expected = Delta()
           ..insert(const <String, dynamic>{})
-          ..retain(1, const {'b': true});
+          ..retain(1, attributes: const {'b': true});
         expect(a.compose(b), expected);
       });
 
       test('retain + delete', () {
-        final a = Delta()..retain(1, const {'b': true});
+        final a = Delta()..retain(1, attributes: const {'b': true});
         final b = Delta()..delete(1);
         final expected = Delta()..delete(1);
         expect(a.compose(b), expected);
       });
 
       test('retain + retain', () {
-        final a = Delta()..retain(1, const {'color': 'blue'});
-        final b = Delta()..retain(1, const {'color': 'red', 'b': true});
-        final expected = Delta()..retain(1, const {'color': 'red', 'b': true});
+        final a = Delta()..retain(1, attributes: const {'color': 'blue'});
+        final b = Delta()
+          ..retain(1, attributes: const {'color': 'red', 'b': true});
+        final expected = Delta()
+          ..retain(1, attributes: const {'color': 'red', 'b': true});
         expect(a.compose(b), expected);
       });
 
@@ -813,15 +839,16 @@ void main() {
       });
 
       test('remove all attributes', () {
-        final a = Delta()..insert('A', const {'b': true});
-        final b = Delta()..retain(1, const {'b': null});
+        final a = Delta()..insert('A', attributes: const {'b': true});
+        final b = Delta()..retain(1, attributes: const {'b': null});
         final expected = Delta()..insert('A');
         expect(a.compose(b), expected);
       });
 
       test('remove all attributes in object', () {
-        final a = Delta()..insert(const <String, dynamic>{}, const {'b': true});
-        final b = Delta()..retain(1, const {'b': null});
+        final a = Delta()
+          ..insert(const <String, dynamic>{}, attributes: const {'b': true});
+        final b = Delta()..retain(1, attributes: const {'b': null});
         final expected = Delta()..insert(const <String, dynamic>{});
         expect(a.compose(b), expected);
       });
@@ -856,19 +883,21 @@ void main() {
 
       test('insert + retain', () {
         final a = Delta()..insert('A');
-        final b = Delta()..retain(1, const {'bold': true, 'color': 'red'});
+        final b = Delta()
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
         final expected = Delta()
           ..retain(1)
-          ..retain(1, const {'bold': true, 'color': 'red'});
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
         expect(a.transform(b, true), expected);
       });
 
       test('insert (object) + retain', () {
         final a = Delta()..insert(const <String, dynamic>{});
-        final b = Delta()..retain(1, const {'bold': true, 'color': 'red'});
+        final b = Delta()
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
         final expected = Delta()
           ..retain(1)
-          ..retain(1, const {'bold': true, 'color': 'red'});
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
         expect(a.transform(b, true), expected);
       });
 
@@ -906,7 +935,8 @@ void main() {
 
       test('delete + retain', () {
         final a = Delta()..delete(1);
-        final b = Delta()..retain(1, const {'bold': true, 'color': 'red'});
+        final b = Delta()
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
         final expected = Delta();
         expect(a.transform(b, true), expected);
       });
@@ -919,44 +949,49 @@ void main() {
       });
 
       test('retain + insert', () {
-        final a = Delta()..retain(1, const {'color': 'blue'});
+        final a = Delta()..retain(1, attributes: const {'color': 'blue'});
         final b = Delta()..insert('B');
         final expected = Delta()..insert('B');
         expect(a.transform(b, true), expected);
       });
 
       test('retain + insert (object)', () {
-        final a = Delta()..retain(1, const {'color': 'blue'});
+        final a = Delta()..retain(1, attributes: const {'color': 'blue'});
         final b = Delta()..insert(const <String, dynamic>{});
         final expected = Delta()..insert(const <String, dynamic>{});
         expect(a.transform(b, true), expected);
       });
 
       test('retain + retain', () {
-        final a1 = Delta()..retain(1, const {'color': 'blue'});
-        final b1 = Delta()..retain(1, const {'bold': true, 'color': 'red'});
-        final a2 = Delta()..retain(1, const {'color': 'blue'});
-        final b2 = Delta()..retain(1, const {'bold': true, 'color': 'red'});
-        final expected1 = Delta()..retain(1, const {'bold': true});
+        final a1 = Delta()..retain(1, attributes: const {'color': 'blue'});
+        final b1 = Delta()
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
+        final a2 = Delta()..retain(1, attributes: const {'color': 'blue'});
+        final b2 = Delta()
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
+        final expected1 = Delta()..retain(1, attributes: const {'bold': true});
         final expected2 = Delta();
         expect(a1.transform(b1, true), expected1);
         expect(b2.transform(a2, true), expected2);
       });
 
       test('retain + retain without priority', () {
-        final a1 = Delta()..retain(1, const {'color': 'blue'});
-        final b1 = Delta()..retain(1, const {'bold': true, 'color': 'red'});
-        final a2 = Delta()..retain(1, const {'color': 'blue'});
-        final b2 = Delta()..retain(1, const {'bold': true, 'color': 'red'});
+        final a1 = Delta()..retain(1, attributes: const {'color': 'blue'});
+        final b1 = Delta()
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
+        final a2 = Delta()..retain(1, attributes: const {'color': 'blue'});
+        final b2 = Delta()
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
         final expected1 = Delta()
-          ..retain(1, const {'bold': true, 'color': 'red'});
-        final expected2 = Delta()..retain(1, const {'color': 'blue'});
+          ..retain(1, attributes: const {'bold': true, 'color': 'red'});
+        final expected2 = Delta()
+          ..retain(1, attributes: const {'color': 'blue'});
         expect(a1.transform(b1, false), expected1);
         expect(b2.transform(a2, false), expected2);
       });
 
       test('retain + delete', () {
-        final a = Delta()..retain(1, const {'color': 'blue'});
+        final a = Delta()..retain(1, attributes: const {'color': 'blue'});
         final b = Delta()..delete(1);
         final expected = Delta()..delete(1);
         expect(a.transform(b, true), expected);
@@ -1140,11 +1175,11 @@ void main() {
 
       test('start and end multiple chop', () {
         final slice = (Delta()
-              ..insert('0123', {'bold': true})
+              ..insert('0123', attributes: {'bold': true})
               ..insert('4567'))
             .slice(3, 5);
         final expected = Delta()
-          ..insert('3', {'bold': true})
+          ..insert('3', attributes: {'bold': true})
           ..insert('4');
         expect(slice, expected);
       });
@@ -1152,10 +1187,10 @@ void main() {
       test('start and end', () {
         final slice = (Delta()
               ..retain(2)
-              ..insert('A', {'bold': true})
+              ..insert('A', attributes: {'bold': true})
               ..insert('B'))
             .slice(2, 3);
-        final expected = Delta()..insert('A', {'bold': true});
+        final expected = Delta()..insert('A', attributes: {'bold': true});
         expect(slice, expected);
       });
 
@@ -1174,7 +1209,7 @@ void main() {
       test('from beginning', () {
         final delta = Delta()
           ..retain(2)
-          ..insert('A', {'bold': true})
+          ..insert('A', attributes: {'bold': true})
           ..insert('B');
         final slice = delta.slice(0);
         expect(slice, delta);
@@ -1182,19 +1217,19 @@ void main() {
 
       test('split ops', () {
         final slice = (Delta()
-              ..insert('AB', {'bold': true})
+              ..insert('AB', attributes: {'bold': true})
               ..insert('C'))
             .slice(1, 2);
-        final expected = Delta()..insert('B', {'bold': true});
+        final expected = Delta()..insert('B', attributes: {'bold': true});
         expect(slice, expected);
       });
 
       test('split ops multiple times', () {
         final slice = (Delta()
-              ..insert('ABC', {'bold': true})
+              ..insert('ABC', attributes: {'bold': true})
               ..insert('D'))
             .slice(1, 2);
-        final expected = Delta()..insert('B', {'bold': true});
+        final expected = Delta()..insert('B', attributes: {'bold': true});
         expect(slice, expected);
       });
     });
@@ -1227,20 +1262,26 @@ void main() {
 
       test('format', () {
         final a = Delta()..insert('A');
-        final b = Delta()..insert('A', {'b': true});
-        final expected = Delta()..retain(1, {'b': true});
+        final b = Delta()..insert('A', attributes: {'b': true});
+        final expected = Delta()..retain(1, attributes: {'b': true});
         expect(a.diff(b), expected);
       });
 
       test('object attributes', () {
         final a = Delta()
-          ..insert('A', {
-            'font': {'family': 'Helvetica', 'size': '15px'},
-          });
+          ..insert(
+            'A',
+            attributes: {
+              'font': {'family': 'Helvetica', 'size': '15px'},
+            },
+          );
         final b = Delta()
-          ..insert('A', {
-            'font': {'family': 'Helvetica', 'size': '15px'},
-          });
+          ..insert(
+            'A',
+            attributes: {
+              'font': {'family': 'Helvetica', 'size': '15px'},
+            },
+          );
         final expected = Delta();
         expect(a.diff(b), expected);
       });
@@ -1324,42 +1365,42 @@ void main() {
 
       test('inconvenient indexes', () {
         final a = Delta()
-          ..insert('12', {'b': true})
-          ..insert('34', {'i': true});
-        final b = Delta()..insert('123', {'bg': 'red'});
+          ..insert('12', attributes: {'b': true})
+          ..insert('34', attributes: {'i': true});
+        final b = Delta()..insert('123', attributes: {'bg': 'red'});
         final expected = Delta()
-          ..retain(2, {'b': null, 'bg': 'red'})
-          ..retain(1, {'i': null, 'bg': 'red'})
+          ..retain(2, attributes: {'b': null, 'bg': 'red'})
+          ..retain(1, attributes: {'i': null, 'bg': 'red'})
           ..delete(1);
         expect(a.diff(b), expected);
       });
 
       test('combination', () {
         final a = Delta()
-          ..insert('Bad', {'bg': 'red'})
-          ..insert('cat', {'bg': 'blue'});
+          ..insert('Bad', attributes: {'bg': 'red'})
+          ..insert('cat', attributes: {'bg': 'blue'});
         final b = Delta()
-          ..insert('Good', {'b': true})
-          ..insert('dog', {'i': true});
+          ..insert('Good', attributes: {'b': true})
+          ..insert('dog', attributes: {'i': true});
         final expected = Delta()
-          ..insert('Good', {'b': true})
+          ..insert('Good', attributes: {'b': true})
           ..delete(2)
-          ..retain(1, {'i': true, 'bg': null})
+          ..retain(1, attributes: {'i': true, 'bg': null})
           ..delete(3)
-          ..insert('og', {'i': true});
+          ..insert('og', attributes: {'i': true});
         expect(a.diff(b, cleanupSemantic: false), expected);
       });
 
       test('cleanup semantic', () {
         final a = Delta()
-          ..insert('Bad', {'bg': 'red'})
-          ..insert('cat', {'bg': 'blue'});
+          ..insert('Bad', attributes: {'bg': 'red'})
+          ..insert('cat', attributes: {'bg': 'blue'});
         final b = Delta()
-          ..insert('Good', {'b': true})
-          ..insert('dog', {'i': true});
+          ..insert('Good', attributes: {'b': true})
+          ..insert('dog', attributes: {'i': true});
         final expected = Delta()
-          ..insert('Good', {'b': true})
-          ..insert('dog', {'i': true})
+          ..insert('Good', attributes: {'b': true})
+          ..insert('dog', attributes: {'i': true})
           ..delete(6);
         expect(a.diff(b), expected);
       });
@@ -1367,7 +1408,7 @@ void main() {
       test('same document', () {
         final a = Delta()
           ..insert('A')
-          ..insert('B', {'b': true});
+          ..insert('B', attributes: {'b': true});
         final expected = Delta();
         expect(a.diff(a), expected);
       });
@@ -1382,9 +1423,9 @@ void main() {
 
   group('DeltaIterator', () {
     final delta = Delta()
-      ..insert('Hello', {'b': true})
+      ..insert('Hello', attributes: {'b': true})
       ..retain(3)
-      ..insert(' world', {'i': true})
+      ..insert(' world', attributes: {'i': true})
       ..insert(Embed('hr'))
       ..delete(4);
     late DeltaIterator iterator;
@@ -1441,16 +1482,25 @@ void main() {
     });
 
     test('next', () {
-      expect(iterator.next(), Operation.insert('Hello', {'b': true}));
+      expect(
+        iterator.next(),
+        Operation.insert('Hello', attributes: {'b': true}),
+      );
       expect(iterator.next(), Operation.retain(3));
-      expect(iterator.next(), Operation.insert(' world', {'i': true}));
+      expect(
+        iterator.next(),
+        Operation.insert(' world', attributes: {'i': true}),
+      );
       expect(iterator.next(), Operation.insert(Embed('hr')));
       expect(iterator.next(), Operation.delete(4));
     });
 
     test('next with operation split', () {
-      expect(iterator.next(2), Operation.insert('He', {'b': true}));
-      expect(iterator.next(10), Operation.insert('llo', {'b': true}));
+      expect(iterator.next(2), Operation.insert('He', attributes: {'b': true}));
+      expect(
+        iterator.next(10),
+        Operation.insert('llo', attributes: {'b': true}),
+      );
       expect(iterator.next(1), Operation.retain(1));
       expect(iterator.next(2), Operation.retain(2));
     });

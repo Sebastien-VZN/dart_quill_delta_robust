@@ -1,25 +1,61 @@
-# 📜 Dart Quill Delta
+# 📜 dart_quill_delta_robust
 
-An unofficial Dart port of [quill-js-delta](https://github.com/quilljs/delta/), originally written in TypeScript.
+A **hardened, production-ready fork** of [`dart_quill_delta`](https://github.com/FlutterQuill/dart-quill-delta) for the [`flutter_quill`](https://pub.dev/packages/flutter_quill) ecosystem.
 
-This package provides a Dart implementation of the [Quill Delta](https://www.npmjs.com/package/quill-delta) format, which is a JSON-based data structure used to describe rich-text documents. For more details, refer to the official [Quill Delta documentation](https://quilljs.com/docs/delta/).
+An unofficial Dart port of [quill-js-delta](https://github.com/quilljs/delta/), originally written in TypeScript. It implements the [Quill Delta](https://www.npmjs.com/package/quill-delta) format — a JSON-based data structure used to describe rich-text documents and their changes. For the full format reference, see the official [Quill Delta documentation](https://quilljs.com/docs/delta/).
 
-## 📖 Background
+> **⚠️ Breaking change**: Optional `attributes` parameters on `insert` / `retain` (both `Delta` methods and `Operation` factories) are now **named** instead of positional. See below.
 
-Previously, this package was part of the [flutter_quill](https://pub.dev/packages/flutter_quill) package, but it has since been separated into its own package. It maintains the same versioning as `flutter_quill`. The [Flutter Quill](http://github.com/singerdmx/flutter-quill) project forked this package from [quill_delta](https://pub.dev/packages/quill_delta).
+## Why this fork?
 
-## 🛠️ Supported Projects
+This fork is maintained as part of the **robust** family of forks, sharing the same rigor across all projects:
 
-The following projects support or use this package:
+- **API hardening**: `insert(dynamic data, {Map<String, dynamic>? attributes})` and `retain(int count, {Map<String, dynamic>? attributes})` use **named** `attributes:` — an explicit, self-documenting signature.
+- **Strict analysis**: enforced with [`very_good_analysis`](https://pub.dev/packages/very_good_analysis) plus Axomind customization (`strict-casts`, `strict-inference`, `strict-raw-types`).
+- **Fork identity**: repository, homepage and issue tracker point to this fork; `publish_to: none`.
+- **Bug fixes**: carries upstream-corrected `diff` (deep `Map` equality) and SDK constraint updates.
 
-- [flutter_quill_to_pdf](https://pub.dev/packages/flutter_quill_to_pdf)
-- [flutter_quill_delta_from_html](https://pub.dev/packages/flutter_quill_delta_from_html)
-- [flutter_quill_delta_easy_parser](https://pub.dev/packages/flutter_quill_delta_easy_parser)
-- [flutter_quill](https://pub.dev/packages/flutter_quill)
-- [markdown_quill](https://pub.dev/packages/markdown_quill)
-- [quill_markdown](https://pub.dev/packages/quill_markdown)
-- [delta_markdown](https://pub.dev/packages/delta_markdown)
-- [super_editor_quill](https://pub.dev/packages/super_editor_quill)
+## Breaking change — named `attributes:`
+
+```dart
+// Before (positional)
+delta.insert('Hello', {'bold': true});
+delta.retain(3, {'color': 'red'});
+
+// After (named)
+delta.insert('Hello', attributes: {'bold': true});
+delta.retain(3, attributes: {'color': 'red'});
+```
+
+The same applies to `Operation.insert(...)` and `Operation.retain(...)`. Single-argument calls (no attributes) are unaffected.
+
+## Usage
+
+```dart
+import 'package:dart_quill_delta/dart_quill_delta.dart';
+
+final doc = Delta()
+  ..insert('Hello world', attributes: {'h': '1'})
+  ..retain(6, attributes: {'bold': true})
+  ..insert('\n');
+```
+
+## Getting started
+
+Add the dependency to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  dart_quill_delta:
+    git:
+      url: https://github.com/Sebastien-VZN/dart_quill_delta_robust.git
+```
+
+Then run `dart pub get` (or `flutter pub get`) and import the package:
+
+```dart
+import 'package:dart_quill_delta/dart_quill_delta.dart';
+```
 
 ## 📚 Documentation
 
@@ -27,5 +63,9 @@ For detailed usage and API references, refer to the official [Quill Delta docume
 
 ## 📜 Acknowledgments
 
-* The original package [quill_delta](https://pub.dev/packages/quill_delta).
-* [Delta Delta](https://github.com/slab/delta).
+* The original package [dart_quill_delta](https://github.com/FlutterQuill/dart-quill-delta).
+* [quill-js-delta](https://github.com/quilljs/delta/) and [Delta Delta](https://github.com/slab/delta).
+
+---
+
+[Français](./README_FR.md)

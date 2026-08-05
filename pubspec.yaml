@@ -1,10 +1,11 @@
 name: dart_quill_delta
 description: "A Dart port of quill-js-delta, offering a simple and expressive JSON format for describing rich-text content and its changes."
 version: 10.8.3
-homepage: https://github.com/FlutterQuill/dart-quill-delta
-repository: https://github.com/FlutterQuill/dart-quill-delta
-issue_tracker: https://github.com/FlutterQuill/dart-quill-delta/issues
-documentation: https://github.com/FlutterQuill/dart-quill-delta
+homepage: https://github.com/Sebastien-VZN/dart_quill_delta_robust
+repository: https://github.com/Sebastien-VZN/dart_quill_delta_robust
+issue_tracker: https://github.com/Sebastien-VZN/dart_quill_delta_robust/issues
+documentation: https://github.com/Sebastien-VZN/dart_quill_delta_robust
+publish_to: none
 
 environment:
   sdk: ^3.0.0

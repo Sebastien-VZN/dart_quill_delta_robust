@@ -35,7 +35,7 @@ class Operation {
       Operation(Operation.deleteKey, length, '', null);
 
   /// Creates operation which inserts [data] with optional [attributes].
-  factory Operation.insert(dynamic data, [Map<String, dynamic>? attributes]) =>
+  factory Operation.insert(dynamic data, {Map<String, dynamic>? attributes}) =>
       Operation(
         Operation.insertKey,
         data is String ? data.length : 1,
@@ -45,7 +45,7 @@ class Operation {
 
   /// Creates operation which retains [length] of characters and optionally
   /// applies attributes.
-  factory Operation.retain(int? length, [Map<String, dynamic>? attributes]) =>
+  factory Operation.retain(int? length, {Map<String, dynamic>? attributes}) =>
       Operation(Operation.retainKey, length, '', attributes);
 
   /// Key of insert operations.

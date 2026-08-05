@@ -4,7 +4,7 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 
 void main() {
-  final doc = Delta()..insert('Hello world', {'h': '1'});
+  final doc = Delta()..insert('Hello world', attributes: {'h': '1'});
   final change = Delta()
     ..retain(6)
     ..delete(5)

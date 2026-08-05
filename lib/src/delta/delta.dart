@@ -180,16 +180,16 @@ class Delta {
   int get hashCode => hashObjects(operations);
 
   /// Retain [count] of characters from current position.
-  void retain(int count, [Map<String, dynamic>? attributes]) {
+  void retain(int count, {Map<String, dynamic>? attributes}) {
     assert(count >= 0, 'Retain count must be non-negative.');
     if (count == 0) return; // no-op
-    push(Operation.retain(count, attributes));
+    push(Operation.retain(count, attributes: attributes));
   }
 
   /// Insert [data] at current position.
-  void insert(dynamic data, [Map<String, dynamic>? attributes]) {
+  void insert(dynamic data, {Map<String, dynamic>? attributes}) {
     if (data is String && data.isEmpty) return; // no-op
-    push(Operation.insert(data, attributes));
+    push(Operation.insert(data, attributes: attributes));
   }
 
   /// Delete [count] characters from current position.
@@ -299,9 +299,9 @@ class Delta {
         keepNull: thisOp.isRetain,
       );
       if (thisOp.isRetain) {
-        return Operation.retain(thisOp.length, attributes);
+        return Operation.retain(thisOp.length, attributes: attributes);
       } else if (thisOp.isInsert) {
-        return Operation.insert(thisOp.data, attributes);
+        return Operation.insert(thisOp.data, attributes: attributes);
       } else {
         throw StateError('Unreachable');
       }
@@ -405,7 +405,8 @@ class Delta {
             if (isEqual(thisOp.data, otherOp.data)) {
               retDelta.retain(
                 opLength,
-                diffAttributes(thisOp.attributes, otherOp.attributes),
+                attributes:
+                    diffAttributes(thisOp.attributes, otherOp.attributes),
               );
             } else {
               retDelta
@@ -452,7 +453,8 @@ class Delta {
       // Retain otherOp which is either retain or insert.
       return Operation.retain(
         length,
-        transformAttributes(thisOp.attributes, otherOp.attributes, priority),
+        attributes: transformAttributes(
+            thisOp.attributes, otherOp.attributes, priority),
       );
     }
   }
@@ -489,7 +491,7 @@ class Delta {
         if (lastOpData.length > 1) {
           insert(
             lastOpData.substring(0, lastOpData.length - 1),
-            lastOp.attributes,
+            attributes: lastOp.attributes,
           );
         }
       }
@@ -537,7 +539,7 @@ class Delta {
                 invertAttributes(op.attributes, baseOp.attributes);
             inverted.retain(
               baseOp.length!,
-              invertAttr.isEmpty ? null : invertAttr,
+              attributes: invertAttr.isEmpty ? null : invertAttr,
             );
           }
         });
