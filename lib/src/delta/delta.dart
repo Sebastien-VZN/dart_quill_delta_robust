@@ -454,7 +454,10 @@ class Delta {
       return Operation.retain(
         length,
         attributes: transformAttributes(
-            thisOp.attributes, otherOp.attributes, priority),
+          thisOp.attributes,
+          otherOp.attributes,
+          priority,
+        ),
       );
     }
   }
