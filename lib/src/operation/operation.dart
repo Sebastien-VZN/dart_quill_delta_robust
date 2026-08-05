@@ -14,12 +14,19 @@ const _valueEquality = DeepCollectionEquality();
 
 /// Operation performed on a rich-text document.
 class Operation {
-  Operation(this.key, this.length, this.data, Map? attributes)
-      : assert(_validKeys.contains(key), 'Invalid operation key "$key".'),
-        assert(() {
-          if (key != Operation.insertKey) return true;
-          return data is String ? data.length == length : length == 1;
-        }(), 'Length of insert operation must be equal to the data length.'),
+  Operation(
+    this.key,
+    this.length,
+    this.data,
+    Map<String, dynamic>? attributes,
+  )   : assert(_validKeys.contains(key), 'Invalid operation key "$key".'),
+        assert(
+          () {
+            if (key != Operation.insertKey) return true;
+            return data is String ? data.length == length : length == 1;
+          }(),
+          'Length of insert operation must be equal to the data length.',
+        ),
         _attributes =
             attributes != null ? Map<String, dynamic>.from(attributes) : null;
 
@@ -27,10 +34,14 @@ class Operation {
   factory Operation.delete(int length) =>
       Operation(Operation.deleteKey, length, '', null);
 
-  /// Creates operation which inserts [text] with optional [attributes].
+  /// Creates operation which inserts [data] with optional [attributes].
   factory Operation.insert(dynamic data, [Map<String, dynamic>? attributes]) =>
-      Operation(Operation.insertKey, data is String ? data.length : 1, data,
-          attributes);
+      Operation(
+        Operation.insertKey,
+        data is String ? data.length : 1,
+        data,
+        attributes,
+      );
 
   /// Creates operation which retains [length] of characters and optionally
   /// applies attributes.
@@ -69,21 +80,31 @@ class Operation {
   ///
   /// If `dataDecoder` parameter is not null then it is used to additionally
   /// decode the operation's data object. Only applied to insert operations.
-  static Operation fromJson(Map data, {DataDecoder? dataDecoder}) {
-    dataDecoder ??= _passThroughDataDecoder;
-    final map = Map<String, dynamic>.from(data);
-    if (map.containsKey(Operation.insertKey)) {
-      final data = dataDecoder(map[Operation.insertKey]);
-      final dataLength = data is String ? data.length : 1;
+  static Operation fromJson(
+    Map<String, dynamic> data, {
+    DataDecoder? dataDecoder,
+  }) {
+    final decoder = dataDecoder ?? _passThroughDataDecoder;
+    if (data.containsKey(Operation.insertKey)) {
+      final dataValue = decoder(data[Operation.insertKey] as Object);
+      final dataLength = dataValue is String ? dataValue.length : 1;
       return Operation(
-          Operation.insertKey, dataLength, data, map[Operation.attributesKey]);
-    } else if (map.containsKey(Operation.deleteKey)) {
-      final int? length = map[Operation.deleteKey];
+        Operation.insertKey,
+        dataLength,
+        dataValue,
+        data[Operation.attributesKey] as Map<String, dynamic>?,
+      );
+    } else if (data.containsKey(Operation.deleteKey)) {
+      final length = data[Operation.deleteKey] as int?;
       return Operation(Operation.deleteKey, length, '', null);
-    } else if (map.containsKey(Operation.retainKey)) {
-      final int? length = map[Operation.retainKey];
+    } else if (data.containsKey(Operation.retainKey)) {
+      final length = data[Operation.retainKey] as int?;
       return Operation(
-          Operation.retainKey, length, '', map[Operation.attributesKey]);
+        Operation.retainKey,
+        length,
+        '',
+        data[Operation.attributesKey] as Map<String, dynamic>?,
+      );
     }
     throw ArgumentError.value(data, 'Invalid data for Delta operation.');
   }
@@ -110,7 +131,7 @@ class Operation {
   bool get isRetain => key == Operation.retainKey;
 
   /// Returns `true` if this operation has no attributes, e.g. is plain text.
-  bool get isPlain => (_attributes == null || _attributes!.isEmpty);
+  bool get isPlain => _attributes == null || _attributes!.isEmpty;
 
   /// Returns `true` if this operation sets at least one attribute.
   bool get isNotPlain => !isPlain;
@@ -124,7 +145,7 @@ class Operation {
   bool get isNotEmpty => length! > 0;
 
   @override
-  bool operator ==(other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Operation) return false;
     final typedOther = other;
@@ -163,7 +184,7 @@ class Operation {
     final attr = attributes == null ? '' : ' + $attributes';
     final text = isInsert
         ? (data is String
-            ? (data as String).replaceAll('\n', '⏎')
+            ? (data! as String).replaceAll('\n', '⏎')
             : data.toString())
         : '$length';
     return '$key⟨ $text ⟩$attr';

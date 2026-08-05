@@ -1,0 +1,47 @@
+﻿name: 🧪 Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # ┌─────────────────────────────────────────────────────────┐
+  # │  Quality gate                                            │
+  # │  Format + Analyze + Unit tests + publish dry-run         │
+  # │  Pure Dart package — no platform builds required.        │
+  # └─────────────────────────────────────────────────────────┘
+  validate:
+    name: "Format, Analyze & Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v6
+
+      - name: 🛠️ Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: 🔍 Verify Dart installation
+        run: dart --version
+
+      - name: 📥 Install dependencies
+        run: dart pub get
+
+      - name: 🧹 Check Dart code formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: 🔍 Run static analysis
+        run: dart analyze
+
+      - name: 🔍 Preview proposed fixes (dry-run)
+        run: dart fix --dry-run
+
+      - name: 📦 Check if package is ready for publishing
+        run: dart pub publish --dry-run
+
+      - name: 🧪 Run unit tests
+        run: dart test

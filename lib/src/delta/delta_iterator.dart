@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import '../operation/operation.dart';
-import 'delta.dart';
+import 'package:dart_quill_delta/src/delta/delta.dart';
+import 'package:dart_quill_delta/src/operation/operation.dart';
 
 /// Specialized iterator for [Delta]s.
 class DeltaIterator {
@@ -48,11 +48,10 @@ class DeltaIterator {
   ///
   /// If this iterator reached the end of the Delta then returns a retain
   /// operation with its length set to [maxLength].
-  // TODO: Note that we used double.infinity as the default value
-  // for length here
-  //       but this can now cause a type error since operation length is
-  //       expected to be an int. Changing default length to [maxLength] is
-  //       a workaround to avoid breaking changes.
+  // TODO(maintainer): Note that we used `double.infinity` as the default
+  // value for `length` here, but this can now cause a type error since
+  // operation length is expected to be an `int`. Changing the default
+  // `length` to [maxLength] is a workaround to avoid breaking changes.
   Operation next([int length = maxLength]) {
     if (_modificationCount != delta.modificationCount) {
       throw ConcurrentModificationError(delta);
@@ -71,11 +70,11 @@ class DeltaIterator {
         _offset += actualLength;
       }
       final opData = op.isInsert && op.data is String
-          ? (op.data as String)
+          ? (op.data! as String)
               .substring(currentOffset, currentOffset + actualLength)
           : op.data;
       final opIsNotEmpty =
-          opData is String ? opData.isNotEmpty : true; // embeds are never empty
+          opData is! String || opData.isNotEmpty; // embeds are never empty
       final opLength = opData is String ? opData.length : 1;
       final opActualLength = opIsNotEmpty ? opLength : actualLength;
       return Operation(opKey, opActualLength, opData, opAttributes);
