@@ -1,6 +1,6 @@
 name: dart_quill_delta
 description: "A Dart port of quill-js-delta, offering a simple and expressive JSON format for describing rich-text content and its changes."
-version: 10.9.0
+version: 10.9.1
 homepage: https://github.com/Sebastien-VZN/dart_quill_delta_robust
 repository: https://github.com/Sebastien-VZN/dart_quill_delta_robust
 issue_tracker: https://github.com/Sebastien-VZN/dart_quill_delta_robust/issues
@@ -16,5 +16,5 @@ dependencies:
   quiver: ^3.2.1
 
 dev_dependencies:
-  very_good_analysis: ^10.2.0
+  very_good_analysis: ^11.0.0
   test: ^1.25.8
