@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 10.9.1
+- Update package flutter
+
 ## 10.9.0
 
 * **BREAKING CHANGE**: Uses named arguments for `attributes` on `insert`/`retain` operations. Update call sites to pass `attributes` as a named parameter.
